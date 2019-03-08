@@ -1,7 +1,17 @@
+import sys
+import getopt
+
+dataIn = sys.argv
+
+
+
+
+
 def setbit1(fileWrite,dataTemplate,instrBin,indexWrite):
     fileWrite.write(dataTemplate[:indexWrite - 1])
     for i in range(15, -1, -1):
         instrFault = instrBin[:i] + "1" + instrBin[i + 1:]
+        print(instrFault + " : " + instrBin)
         if instrFault != instrBin:
             fileWrite.write(bytes.fromhex(hex(int(instrFault, 2))[4:6]))
             fileWrite.write(bytes.fromhex(hex(int(instrFault, 2))[2:4]))
@@ -40,6 +50,9 @@ def flipbit(fileWrite,dataTemplate,instrBin,indexWrite):
 
 
 def main():
+    #print(dataIn)
+    nbBit = dataIn[1]
+    faultType = dataIn[2]
     fileRead = open("instruction.txt", "r")
     data = fileRead.read()
     # print(data)
@@ -55,7 +68,13 @@ def main():
     fileTemplate = open("template.elf", "rb")
     dataTemplate = fileTemplate.read()
     indexWrite = 59
-    indexWrite = flipbit(fileWrite,dataTemplate,instrBin,indexWrite)
+    if nbBit == '1':
+        if faultType == 's':
+            indexWrite = setbit1(fileWrite, dataTemplate, instrBin, indexWrite)
+        elif faultType == 'r':
+            indexWrite = resetbit(fileWrite, dataTemplate, instrBin, indexWrite)
+        elif faultType == 'f':
+            indexWrite = flipbit(fileWrite, dataTemplate, instrBin, indexWrite)
     fileWrite.close()
     fileTemplate.close()
     print(hex(indexWrite - 53))
