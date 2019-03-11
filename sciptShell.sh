@@ -7,6 +7,11 @@ echo nom du script : $0
 
 arm-none-eabi-objdump -d $1
 
+timestamp(){
+	date +%y%m%d_%H%M%S_%3N
+}
+
+
 #On demande à l'utilisateur d'indiquer l'adresse de l'instruction à fauter
 echo 
 
@@ -43,9 +48,10 @@ done
 
 #On récupere l'index de la derniere instruction fautée
 index=$(python3 setbit.py $nb_fault_bits $faultType)
-
 #On affiche les instructions fautée
-arm-none-eabi-objdump --start-address=6 --stop-address=$index -d hexToArm.elf
+timeS=$(timestamp)
+mkdir -p log
+arm-none-eabi-objdump --start-address=6 --stop-address=$index -d hexToArm.elf >> log/$timeS.txt
 rm instruction.txt
 
 exit 0
