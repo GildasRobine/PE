@@ -8,15 +8,28 @@ echo nom du script : $0
 #On affiche les instructions asm du programme à attaquer
 arm-none-eabi-objdump -d $1
 
+timestamp(){
+	date +%y-%m-%d_%T_%3N
+}
 
-echo 
-#On demande à l'utilisateur d'indiquer l'adresse de l'instruction à fauter
-echo -n "Veuillez séléctionner l'adresse de l'instruction à fauter : "
-read add_inst
 
-#On stocke la ligne correspondant à l'instruction que l'on veut fauter
-arm-none-eabi-objdump -d $1 | egrep -w $add_inst: >> instruction.txt
 
+echo
+
+while :; do
+ 
+	#On demande à l'utilisateur d'indiquer l'adresse de l'instruction à fauter
+	read -p "Veuillez séléctionner l'adresse de l'instruction à fauter : " add_inst
+	#On stocke la ligne correspondant à l'instruction que l'on veut fauter
+	arm-none-eabi-objdump -d $1 | egrep -w $add_inst: >> instruction.txt
+	if [ -s "instruction.txt" ]
+	then
+		
+		break
+	else
+		echo "Rentrez une adresse d'instruction valide" 
+	fi
+done
 #On demande à l'utilisateur d'indiquer le nombre de bits à fauter
 while :; do
   read -p "Combien de bits voulez-vous fauter (entre 1 et 16) : " nbFaultBits
@@ -45,13 +58,17 @@ while :; do
   fi
 done
 
-echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits"
+
+timeS=$(timestamp)
+echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.txt
+cat instruction.txt | tee -a log/$timeS.txt
 #On récupere l'index de la derniere instruction fautée
 index=$(python3 setbit.py $nbFaultBits $faultType)
-
 #On affiche les instructions fautée
-arm-none-eabi-objdump --start-address=6 --stop-address=$index -d hexToArm.elf
-#On supprime le fichier qui nous permet de passer l'instruction à attaquer 
+
+
+mkdir -p log
+arm-none-eabi-objdump --start-address=6 --stop-address=$index -d hexToArm.elf | tee -a log/$timeS.txt
 rm instruction.txt
 
 #Si le programme s'est bien passé, on sort avec le code 0
