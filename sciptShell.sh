@@ -68,7 +68,7 @@ index=$(python3 setbit.py $nbFaultBits $faultType)
 
 
 mkdir -p log
-arm-none-eabi-objdump --start-address=6 --stop-address=$index -d hexToArm.elf | tee -a log/$timeS.txt
+arm-none-eabi-objdump --start-address=6 --stop-address=$index -d hexToArm.elf | tee -a log/$timeS.log
 rm instruction.txt
 
 #Si le programme s'est bien passé, on sort avec le code 0
