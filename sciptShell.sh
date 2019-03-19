@@ -5,8 +5,20 @@ echo "Consequence d'une modification de bits sur une instruction"
 echo "Utilisation : scriptShell.sh <fichier .elf>"
 echo nom du script : $0
 
+ 
+#La premier argument contient le jeu d'instruction à utiliser
+case $1 in
+arm) instructionSet=arm-none-eabi-;;
+avr) instructionSet=avr-;;
+mips) instructionSet=mipsel-unknown-linux-gnu-;;
+risk) instructionSet=risk-;;
+*) instructionSet=arm-none-eabi-;;
+esac
+echo "Jeu d'instruction : $instructionSet" 
+
 #On affiche les instructions asm du programme à attaquer
-arm-none-eabi-objdump -d $1
+#Le second argument correspond au fichier contenant le code
+${instructionSet}objdump -d $2
 
 timestamp(){
 	date +%y-%m-%d_%T_%3N
@@ -21,7 +33,7 @@ while :; do
 	#On demande à l'utilisateur d'indiquer l'adresse de l'instruction à fauter
 	read -p "Veuillez séléctionner l'adresse de l'instruction à fauter : " add_inst
 	#On stocke la ligne correspondant à l'instruction que l'on veut fauter
-	arm-none-eabi-objdump -d $1 | egrep -w $add_inst: >> instruction.txt
+	${instructionSet}objdump -d $2 | egrep -w $add_inst: >> instruction.txt
 	if [ -s "instruction.txt" ]
 	then
 		
@@ -68,7 +80,7 @@ index=$(python3 setbit.py $nbFaultBits $faultType)
 
 
 mkdir -p log
-arm-none-eabi-objdump --start-address=6 --stop-address=$index -d hexToArm.elf | tee -a log/$timeS.log
+${instructionSet}objdump --start-address=6 --stop-address=$index -d hexToArm.elf | tee -a log/$timeS.log
 rm instruction.txt
 
 #Si le programme s'est bien passé, on sort avec le code 0
