@@ -60,7 +60,7 @@ done
 
 
 timeS=$(timestamp)
-echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.txt
+echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.log
 cat instruction.txt | tee -a log/$timeS.txt
 #On récupere l'index de la derniere instruction fautée
 index=$(python3 setbit.py $nbFaultBits $faultType)
