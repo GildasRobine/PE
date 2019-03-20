@@ -22,9 +22,9 @@ def int2string(instrInt):
 # Céer un masque de faute de taille nbBit pour une instruction de taille tailleInstr.
 # Si on donne un indice de faute, il ne donne que le masque correspondant
 # Sinon
-def maskGenerator(nbBit, tailleInstr, indice=0):
+def maskGenerator(nbBit, tailleInstr, indice=-1):
     masksList=[]
-    if indice ==0:
+    if indice == -1:
         for i in range(tailleInstr,-1+nbBit,-1):
             mask = tailleInstr*[0]
             mask[i-nbBit:i] = nbBit*[1]
@@ -52,7 +52,7 @@ def andNotLoop(instrInt, mask):
 
     return list(map(lambda x,y: x & (not y) , instrInt, mask))
 
-def generateFaults(instrSTR, nbBit, faultType, tailleInstr, indice = 0):
+def generateFaults(instrSTR, nbBit, faultType, tailleInstr, indice = -1):
     faultsMatrix=[instrSTR]
     # On genère les masques
     masksList = maskGenerator(nbBit,tailleInstr,indice)
@@ -92,24 +92,35 @@ def getInstr(data):
 def writeInELF(file, faultsMatrix, indexWrite, instrTaille, dataTemplate):
     file.write(dataTemplate[:indexWrite - 1])
     for fault in faultsMatrix:
-        faultBytes=bytes.fromhex(f"{int(fault,2):#0{instrTaille//4}x}"[2:])
-        file.write(faultBytes)
-        indexWrite += 2
+        convertFault(fault,instrTaille,file)
+        indexWrite += instrTaille//8
     file.write(dataTemplate[indexWrite-1:])
     return indexWrite
+
+def convertFault(fault, instrTaille,file):
+    faulthexa= f"{int(fault,2):#0{instrTaille//4}x}"[2:]
+    if instrTaille == 16:
+        file.write(bytes.fromhex(faulthexa[2:4]))
+        file.write(bytes.fromhex(faulthexa[:2]))
+    else:
+        file.write(bytes.fromhex(faulthexa[2:4]))
+        file.write(bytes.fromhex(faulthexa[:2]))
+        file.write(bytes.fromhex(faulthexa[6:8]))
+        file.write(bytes.fromhex(faulthexa[4:6]))
+
 
 def main():
 
     # Récupérations des données
     # Nombre de bits à fauter
-    nbBit = dataIn[1]
+    nbBit = int(dataIn[1])
     # Type de faute à effectuer
     faultType = dataIn[2]
 
     fileTemplate = open("templatePy", "rb")
     dataTemplate = fileTemplate.read()
     fileTemplate.close()
-    fileWrite = open("toObjdump", "wb")
+    fileWrite = open("toObjdump.elf", "wb")
     indexWrite = 59
 
     # Fichier comportant l'instruction
@@ -118,10 +129,9 @@ def main():
     data = fileRead.read()
     instrSTR ,tailleInstr = getInstr(data)
 
-    # Fichier d'écriture
-    fileWrite = open("output.dat","wb")
-    faults = generateFaults(instrSTR, 1, 'f', tailleInstr)
-    print(writeInELF(fileWrite, faults, 1,tailleInstr,dataTemplate))
+    faults = generateFaults(instrSTR, nbBit, faultType, tailleInstr)
+    index = writeInELF(fileWrite, faults, indexWrite, tailleInstr, dataTemplate)
+    print(hex(index-53))
     fileWrite.close()
 
 main()
