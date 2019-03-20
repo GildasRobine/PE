@@ -3,22 +3,60 @@
 
 echo "Consequence d'une modification de bits sur une instruction"
 echo "Utilisation : scriptShell.sh <fichier .elf>"
-echo nom du script : $0
+echo "nom du script : $0"
+echo
 
- 
-#La premier argument contient le jeu d'instruction à utiliser
-case $1 in
-arm) instructionSet=arm-none-eabi-;;
-avr) instructionSet=avr-;;
-mips) instructionSet=mipsel-unknown-linux-gnu-;;
-risk) instructionSet=risk-;;
-*) instructionSet=arm-none-eabi-;;
-esac
-echo "Jeu d'instruction : $instructionSet" 
+nbparam=0
+printHelp="
+Pour lancer le script : ./scriptShell.sh -arch=<nom_arch> -f=<nom_fichier.elf>\n
+-arch,	Sélection du jeu d'instructions (arm, avr, mips, risk)\n
+-f,	Sélection du fichier elf à fauter\n
+"
+archOK=false
+fichierOK=false
+#Lecture des paramètres en entrée
+for param in "$@"
+do	
+	case $param in
+	#Si le paramètre commence par -arch, on vient choisir le jeu d'instruction
+	-arch*)
+		archOK=true
+		case $param in
+		*arm) instructionSet=arm-none-eabi-;;
+		*avr) instructionSet=avr-;;
+		*mips) instructionSet=mipsel-unknown-linux-gnu-;;
+		*risk) instructionSet=risk-;;	
+	# Début ajout jeux instructions
+
+	# Fin ajout jeux instructions
+		*) instructionSet=arm-none-eabi-;; #jeu d'instruction arm par défaut
+		esac;;
+	#Si le paramètre commence par -f, on vient choisir le fichier contenant les instructions
+	-f*) 	nomFichier=${param:3}
+		if [ -f $nomFichier ]
+		then
+			fichierOK=true
+		else
+			echo "Le fichier $nomFichier n'existe pas"
+		fi;;
+	*) 	echo ;;
+	esac
+done
+#Vérification des argmuments obligatoire
+if ( $archOK && $fichierOK ); then
+	echo "Jeu d'instruction : $instructionSet"
+	echo "Nom du fichier $nomFichier"
+else
+	echo -e $printHelp
+	exit
+fi
+
+
+
 
 #On affiche les instructions asm du programme à attaquer
 #Le second argument correspond au fichier contenant le code
-${instructionSet}objdump -d $2
+${instructionSet}objdump -d $nomFichier
 
 timestamp(){
 	date +%y-%m-%d_%T_%3N
@@ -33,7 +71,7 @@ while :; do
 	#On demande à l'utilisateur d'indiquer l'adresse de l'instruction à fauter
 	read -p "Veuillez séléctionner l'adresse de l'instruction à fauter : " add_inst
 	#On stocke la ligne correspondant à l'instruction que l'on veut fauter
-	${instructionSet}objdump -d $2 | egrep -w $add_inst: >> instruction.txt
+	${instructionSet}objdump -d $nomFichier | egrep -w $add_inst: >> instruction.txt
 	if [ -s "instruction.txt" ]
 	then
 		
