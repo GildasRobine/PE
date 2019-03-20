@@ -89,11 +89,11 @@ def getInstr(data):
     instrBin = bin(int(instrHex,16))[2:]
     return instrBin, tailleInstr
 
-def writeInELF(file, faultsMatrix, indexWrite, instrTaille):
+def writeInELF(file, faultsMatrix, indexWrite, instrTaille, dataTemplate):
     file.write(dataTemplate[:indexWrite - 1])
     for fault in faultsMatrix:
         faultBytes=bytes.fromhex(f"{int(fault,2):#0{instrTaille//4}x}"[2:])
-        file.write(bytes.fromhex(f"{int(fault,2):#0{instrTaille//4}x}"[2:]))
+        file.write(faultBytes)
         indexWrite += 2
     file.write(dataTemplate[indexWrite-1:])
     return indexWrite
@@ -105,9 +105,11 @@ def main():
     nbBit = dataIn[1]
     # Type de faute à effectuer
     faultType = dataIn[2]
-    fileWrite = open("hexToArm32.elf", "wb")
-    fileTemplate = open("template.elf", "rb")
+
+    fileTemplate = open("templatePy", "rb")
     dataTemplate = fileTemplate.read()
+    fileTemplate.close()
+    fileWrite = open("toObjdump", "wb")
     indexWrite = 59
 
     # Fichier comportant l'instruction
@@ -119,7 +121,7 @@ def main():
     # Fichier d'écriture
     fileWrite = open("output.dat","wb")
     faults = generateFaults(instrSTR, 1, 'f', tailleInstr)
-    print(writeInELF(fileWrite, faults, 1,tailleInstr))
-
+    print(writeInELF(fileWrite, faults, 1,tailleInstr,dataTemplate))
+    fileWrite.close()
 
 main()
