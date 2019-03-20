@@ -89,26 +89,37 @@ def getInstr(data):
     instrBin = bin(int(instrHex,16))[2:]
     return instrBin, tailleInstr
 
+def writeInELF(file, faultsMatrix, indexWrite, instrTaille):
+    file.write(dataTemplate[:indexWrite - 1])
+    for fault in faultsMatrix:
+        faultBytes=bytes.fromhex(f"{int(fault,2):#0{instrTaille//4}x}"[2:])
+        file.write(bytes.fromhex(f"{int(fault,2):#0{instrTaille//4}x}"[2:]))
+        indexWrite += 2
+    file.write(dataTemplate[indexWrite-1:])
+    return indexWrite
+
 def main():
 
     # Récupérations des données
     # Nombre de bits à fauter
-    # nbBit = dataIn[1]
-    # # Type de faute à effectuer
-    # faultType = dataIn[2]
+    nbBit = dataIn[1]
+    # Type de faute à effectuer
+    faultType = dataIn[2]
+    fileWrite = open("hexToArm32.elf", "wb")
+    fileTemplate = open("template.elf", "rb")
+    dataTemplate = fileTemplate.read()
+    indexWrite = 59
+
     # Fichier comportant l'instruction
     fileRead = open("instruction.txt", "r")
     # Instruction
     data = fileRead.read()
     instrSTR ,tailleInstr = getInstr(data)
 
-    print(hex(int(instrSTR,2))[2:])
+    # Fichier d'écriture
+    fileWrite = open("output.dat","wb")
     faults = generateFaults(instrSTR, 1, 'f', tailleInstr)
-    for fault in faults:
-        print("%0*x" % ((len(fault)+3) // 4, int(fault, 2)))
-
-
-
+    print(writeInELF(fileWrite, faults, 1,tailleInstr))
 
 
 main()
