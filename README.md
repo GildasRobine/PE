@@ -26,6 +26,10 @@ sudo apt-get install python3.6
 Installation des Toolchains :
 * ARM :
 * AVR : 
+```
+sudo apt-get install gcc-avr binutils-avr avr-libc
+sudo apt-get install gdb-avr
+```
 * MIPS (binutils-2.30, gcc-7.3.0, gdb-8.1): https://www.linux-mips.org/wiki/Toolchains
 * RISK V :
 
@@ -56,6 +60,7 @@ Le programme affiche alors les potentiels corruptions de l'instruction avec le m
 * Jean-Max Dutertre
 * Pierre-Alain Moellic
 * Olivier Potin
+
 
 
 
