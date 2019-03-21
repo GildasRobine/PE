@@ -9,7 +9,8 @@ nbNope = int(data[1])
 file.write("void main(){ \n asm(")
 
 for i in range(nbNope):
-    file.write("\t\"nop;\" \n")
+    instr= "\t\"subi R16,$"+str(i)+" ;\" \n"
+    file.write(instr)
 
 file.write("); \n}")
 

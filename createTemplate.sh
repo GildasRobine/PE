@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "Création du ficheir template"
-read -p "Entrez la taille des isntructions (16 ou 32 bits) : " size
+echo "Création du fichier template"
+read -p "Entrez la taille des instructions (16 ou 32 bits) : " size
 
 if [ $size -eq 16 ]; then
     echo "$size"
@@ -14,6 +14,16 @@ fi
 
 toolchain=$1
 echo "Compilation du template"
-${toolchain}gcc -c -mcpu=cortex-m3 templatePy.c -o templatePy
+case $toolchain in
+    arm*) optionARCH=-mcpu=cortex-m3;;
+    avr*) optionARCH=-mmcu=avr4;;
+    mips*) optionARCH= ;;
+    risk*) optionARCH= ;;
+    # Début ajout jeux instructions
 
-echo "Compilation réussie"
+    # Fin ajout jeux instructions
+    *) optionARCH=-mcpu=cortex-m3;; #jeu d'instruction cortex-m3 par défaut
+esac
+
+
+${toolchain}gcc -c $optionARCH templatePy.c -o templatePy

@@ -51,7 +51,8 @@ else
 	exit
 fi
 
-
+#On crée le template
+./createTemplate.sh ${instructionSet}
 
 
 #On affiche les instructions asm du programme à attaquer
@@ -113,13 +114,14 @@ timeS=$(timestamp)
 echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.log
 cat instruction.txt | tee -a log/$timeS.txt
 #On récupere l'index de la derniere instruction fautée
-index=$(python3 setbit.py $nbFaultBits $faultType)
+index=$(python3 createFault.py $nbFaultBits $faultType)
 #On affiche les instructions fautée
 
 
 mkdir -p log
-${instructionSet}objdump --start-address=6 --stop-address=$index -d hexToArm.elf | tee -a log/$timeS.log
+${instructionSet}objdump --start-address=6 --stop-address=$index -d toObjdump.elf | tee -a log/$timeS.log
 rm instruction.txt
+echo $index
 
 #Si le programme s'est bien passé, on sort avec le code 0
 exit 0

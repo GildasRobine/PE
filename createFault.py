@@ -21,7 +21,7 @@ def int2string(instrInt):
 
 # Céer un masque de faute de taille nbBit pour une instruction de taille tailleInstr.
 # Si on donne un indice de faute, il ne donne que le masque correspondant
-# Sinon
+# Sinon il génère tous les masques possibles
 def maskGenerator(nbBit, tailleInstr, indice=-1):
     masksList=[]
     if indice == -1:
@@ -75,16 +75,19 @@ def generateFaults(instrSTR, nbBit, faultType, tailleInstr, indice = -1):
             fault = int2string(xorLoop(instrInt, mask))
             if fault not in faultsMatrix:
                 faultsMatrix.append(fault)
-#   On renvoie les fautes générées
+#   On renvoie les fautes générées sans l'instruction de départ
     return faultsMatrix[1:]
 
 
 def getInstr(data):
     # recupere l'instruction hexadeciaml
     instrHex = data.split("\t")[1]
-    # calcul la taille de l'instruction (16 ou 32 bits)
-    tailleInstr = len(instrHex.split())*16
-    instrHex = instrHex.replace(" ","")
+
+    instrHex = instrHex.replace(" ", "")
+    instrList= list(instrHex)
+    #Calcul de la taille de l'instruction
+    tailleInstr=len(instrList)*4
+
     # la convertie en une chaine de 0 et 1
     instrBin = bin(int(instrHex,16))[2:]
     return instrBin, tailleInstr
@@ -131,7 +134,10 @@ def main():
 
     faults = generateFaults(instrSTR, nbBit, faultType, tailleInstr)
     index = writeInELF(fileWrite, faults, indexWrite, tailleInstr, dataTemplate)
-    print(hex(index-53))
+    if faults[-1].startswith('1111') and tailleInstr == 16:
+        print(hex(index-51))
+    else:
+        print(hex(index - 53))
     fileWrite.close()
 
 main()

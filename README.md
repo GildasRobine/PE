@@ -50,6 +50,15 @@ Une fois le programme lancer, il va falloir choisir l'instructionà fauter et le
 
 Le programme affiche alors les potentiels corruptions de l'instruction avec le modèle de fautes indiqué (opcode en hexa + correspondance assembleur).
 
+
+## Problèmes connus
+
+### ARM Cortex-M3
+
+* Si lors d'un bitset sur une instruction 16 bits les quatres derniers bits passent à 1 alors l'instruction passe sur 32 bits et elle va prendre comme 2ème moitié d'instruction la suivante.
+	* Exemple : ddf0 suivit d'un nop (bf00) va donner fdf0 bf00 (ldc2l	15, cr11, [r0]) après le dernier bitset
+
+
 ## Auteurs
 
 * Antoine Boré 
