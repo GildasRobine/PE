@@ -22,10 +22,20 @@ do
 	-arch*)
 		archOK=true
 		case $param in
-		*arm) instructionSet=arm-none-eabi-;;
-		*avr) instructionSet=avr-;;
-		*mips) instructionSet=mipsel-unknown-linux-gnu-;;
-		*risk) instructionSet=risk-;;	
+		*arm)
+		instructionSet=arm-none-eabi-
+		endianess=le
+		 ;;
+		*avr)
+		instructionSet=avr-
+		endianess=be
+		;;
+		*mips)
+		instructionSet=mipsel-unknown-linux-gnu-
+		endianess=le;;
+		*risk)
+		 instructionSet=risk-
+		 endianess=le;;
 	# Début ajout jeux instructions
 
 	# Fin ajout jeux instructions
@@ -52,7 +62,7 @@ else
 fi
 
 #On crée le template
-./createTemplate.sh ${instructionSet}
+#./createTemplate.sh ${instructionSet}
 
 
 #On affiche les instructions asm du programme à attaquer
@@ -114,7 +124,7 @@ timeS=$(timestamp)
 echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.log
 cat instruction.txt | tee -a log/$timeS.txt
 #On récupere l'index de la derniere instruction fautée
-index=$(python3 createFault.py $nbFaultBits $faultType)
+index=$(python3 createFault.py $nbFaultBits $faultType $endianess $instructionSet)
 #On affiche les instructions fautée
 
 
