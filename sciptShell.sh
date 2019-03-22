@@ -61,10 +61,6 @@ else
 	exit
 fi
 
-#On crée le template
-#./createTemplate.sh ${instructionSet}
-
-
 #On affiche les instructions asm du programme à attaquer
 #Le second argument correspond au fichier contenant le code
 ${instructionSet}objdump -d $nomFichier
@@ -122,7 +118,7 @@ done
 
 timeS=$(timestamp)
 echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.log
-cat instruction.txt | tee -a log/$timeS.txt
+cat instruction.txt | tee -a log/$timeS.log
 #On récupere l'index de la derniere instruction fautée
 index=$(python3 createFault.py $nbFaultBits $faultType $endianess $instructionSet)
 #On affiche les instructions fautée
