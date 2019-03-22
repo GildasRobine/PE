@@ -127,13 +127,13 @@ def main():
     arch =dataIn[4]
     #On onvre le template correspondant à l'architecture choisie
     if arch.startswith("arm"):
-        fileTemplate = open("templateARM", "rb")
+        fileTemplate = open("templates/templateARM", "rb")
     elif arch.startswith("avr"):
-        fileTemplate = open("templateAVR", "rb")
+        fileTemplate = open("templates/templateAVR", "rb")
     elif arch.startswith("mips"):
-        fileTemplate = open("templateMIPS", "rb")
+        fileTemplate = open("templates/templateMIPS", "rb")
     elif arch.startswith("ris"):
-        fileTemplate = open("templateRISC", "rb")
+        fileTemplate = open("templates/templateRISC", "rb")
 
     dataTemplate = fileTemplate.read()
     fileTemplate.close()
