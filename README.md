@@ -10,7 +10,7 @@ Les modèles de fautes posibles sont bit-set, bit-reset et bit-flip. Le nombre d
 * ARM
 * AVR
 * MIPS
-* RISK V
+* RISC V
 
 
 ## Premiers pas
@@ -31,7 +31,9 @@ sudo apt-get install gcc-avr binutils-avr avr-libc
 sudo apt-get install gdb-avr
 ```
 * MIPS (binutils-2.30, gcc-7.3.0, gdb-8.1): https://www.linux-mips.org/wiki/Toolchains
-* RISK V :
+* RISC V :
+
+Installation de st-util : https://github.com/texane/stlink
 
 ## Lancer le test
 
@@ -39,16 +41,23 @@ sudo apt-get install gdb-avr
 cd simulateurInjection
 ./scriptShell.sh <jeu_instruction> <fichier>
 ```
-jeu_instruction : arm, avr, mips, risk
+jeu_instruction : arm, avr, mips, risc
 
 fichier : fichier .elf après compilation du programme
 
-Une fois le programme lancer, il va falloir choisir l'instructionà fauter et les caractéristiques de la faute :
+### Recherche des fautes possibles
+
+Une fois le programme lancer, il va falloir choisir l'instruction à fauter et les caractéristiques de la faute :
 * Choix de l'adresse de la faute en hexa (ex: 12c)
 * Nombre de bits à fauter (entre 1 et 32)
 * Type de faute à simuler (Bitset (s) - Bitreset (r) - Bitflip (f))
 
 Le programme affiche alors les potentiels corruptions de l'instruction avec le modèle de fautes indiqué (opcode en hexa + correspondance assembleur).
+
+### Simulateur
+
+Une fois que le programme a afficher les corruptions possibles, l'utilisateur peut choisir de simuler une de ces posibilités en entrant l'adresse de la corruptions.
+Le simulateur ne fonctionne que pour la toolchain ARM et l'utilitaire st-util pour le moment. Pour que la simulation puisse fonctionner, il faut lancer st-util dans un autre terminal.
 
 
 ## Problèmes connus

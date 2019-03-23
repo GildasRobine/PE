@@ -5,11 +5,11 @@ echo "Consequence d'une modification de bits sur une instruction"
 echo "Utilisation : scriptShell.sh <fichier .elf>"
 echo "nom du script : $0"
 echo
-
+rm instruction.txt 2> /dev/null 
 nbparam=0
 printHelp="
 Pour lancer le script : ./scriptShell.sh -arch=<nom_arch> -f=<nom_fichier.elf>\n
--arch,	Sélection du jeu d'instructions (arm, avr, mips, risk)\n
+-arch,	Sélection du jeu d'instructions (arm, avr, mips, risc)\n
 -f,	Sélection du fichier elf à fauter\n
 "
 archOK=false
@@ -34,7 +34,7 @@ do
 		instructionSet=mipsel-unknown-linux-gnu-
 		endianess=le;;
 		*risk)
-		 instructionSet=risk-
+		 instructionSet=riscv64-unknown-linux-gnu-
 		 endianess=le;;
 	# Début ajout jeux instructions
 
@@ -122,7 +122,7 @@ done
 
 timeS=$(timestamp)
 echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.log
-cat instruction.txt | tee -a log/$timeS.txt
+cat instruction.txt | tee -a log/$timeS.log
 #On récupere l'index de la derniere instruction fautée
 index=$(python3 createFault.py $nbFaultBits $faultType $endianess $instructionSet)
 #On affiche les instructions fautée
@@ -130,8 +130,61 @@ index=$(python3 createFault.py $nbFaultBits $faultType $endianess $instructionSe
 
 mkdir -p log
 ${instructionSet}objdump --start-address=6 --stop-address=$index -d toObjdump.elf | tee -a log/$timeS.log
-rm instruction.txt
-echo $index
+
+#test ajout modification
+#La simulation de l'instruction corrompue ne fonctionne qu'avec ARM pour le moment
+read -p "Voulez-vous corrompre l'instruction (oui/non) : "  corrupt
+case $corrupt in
+	o*)
+	while :; do
+		read -p "Par quelle instruction remplacer l'instruction : " ligneInstr
+		${instructionSet}objdump --start-address=6 --stop-address=$index -d toObjdump.elf | egrep -w $ligneInstr: >> instructionModif.txt
+		if [ -s "instructionModif.txt" ]
+		then
+			
+			break
+		else
+			echo "Rentrez une adresse d'instruction valide" 
+		fi
+	done
+	arm-none-eabi-objdump -d blink32/build/blink32.elf | egrep "fonction_inutile" >> addrFct.txt
+	
+	#Script python qui crée un main avec l'instruction corrompue dans une zone mémoire
+	breakpoint=$(python3 corruptSimu.py)
+
+	#On récupère les adresses de l'instruction corrompue et de l'instruction à corrompre
+	set -- $breakpoint
+	breakInit=$1
+	breakFault=$(printf "0x%X\n" $(($2+0x2)))
+	jumpInit=$(printf "0x%X\n" $(($1+0x2)))
+	jumpFault=$2
+	#On compile avec un main.c contenant l'instruction corrompue
+	cd blink32/
+	make &> /dev/null 
+	cd ..
+	#arm-none-eabi-objdump -d blink32/build/blink32.elf
+	echo -e "\nPour effectuer la corruption, entrer les commandes jump *$jumpFault, jump *$jumpInit\n\n"
+	arm-none-eabi-gdb -q blink32/build/blink32.elf -ex="target remote :4242" -ex="load" -ex="break *$breakInit" -ex="break *$breakFault" 
+	
+	echo "Réinitialisation des fichiers"
+	#Remplace le fichier avec l'instruction corrompue par le fichier de base
+	rm blink32/Src/main.c
+	mv blink32/Src/buffer.c blink32/Src/main.c
+	cd blink32/
+	#Recompile avec le fichier de base
+	make clean  &> /dev/null 
+	make  &> /dev/null 
+	cd ..
+	;;
+	n*);;
+	*);;
+esac
+
+
+rm instruction.txt 2> /dev/null 
+rm instructionModif.txt 2> /dev/null 
+rm addrFct.txt 2> /dev/null 
+
 
 #Si le programme s'est bien passé, on sort avec le code 0
 exit 0
