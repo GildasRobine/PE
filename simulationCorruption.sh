@@ -61,10 +61,6 @@ else
 	exit
 fi
 
-#On crée le template
-#./createTemplate.sh ${instructionSet}
-
-
 #On affiche les instructions asm du programme à attaquer
 #Le second argument correspond au fichier contenant le code
 ${instructionSet}objdump -d $nomFichier

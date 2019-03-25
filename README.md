@@ -66,6 +66,7 @@ Le simulateur ne fonctionne que pour la toolchain ARM et l'utilitaire st-util po
 
 * Si lors d'un bitset sur une instruction 16 bits les quatre derniers bits passent à 1 alors l'instruction passe sur 32 bits et elle va prendre comme 2ème moitié d'instruction la suivante.
 	* Exemple : ddf0 suivit d'un nop (bf00) va donner fdf0 bf00 (ldc2l	15, cr11, [r0]) après le dernier bitset
+* S'il y a une erreur lors de la configuration de gcc du type : Building GCC requires GMP 4.2+, MPFR 2.3.1+ and MPC 0.8.0+, il faut se placer dans le dossier de gcc et effectuer cette commande : ./contrib/download_prerequisites
 
 
 ## Auteurs
