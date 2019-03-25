@@ -64,7 +64,12 @@ def generateFaults(instrSTR, nbBit, faultType, tailleInstr, indice = -1):
             # On genere une faute par masque qu'on ajoute si elle différe de l'instruction de départ ou des fautes déjà existante
             fault = int2string(orLoop(instrInt,mask))
             if fault not in faultsMatrix:
-                faultsMatrix.append(fault)
+
+                if(tailleInstr==16 and fault[0:3]=="111"):
+                    print("16to32:" + fault + "XXXXXXXXXXXXXXXX")
+                else:
+                    faultsMatrix.append(fault)
+
     elif faultType == 'r':
         for mask in masksList:
             fault = int2string(andNotLoop(instrInt, mask))
