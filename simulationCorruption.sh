@@ -33,7 +33,7 @@ do
 		*mips)
 		instructionSet=mipsel-unknown-linux-gnu-
 		endianess=le;;
-		*risk)
+		*risc)
 		 instructionSet=riscv64-unknown-linux-gnu-
 		 endianess=le;;
 	# Début ajout jeux instructions
@@ -177,7 +177,7 @@ case $corrupt in
 esac
 
 
-rm instruction.txt 2> /dev/null 
+#rm instruction.txt 2> /dev/null
 rm instructionModif.txt 2> /dev/null 
 rm addrFct.txt 2> /dev/null 
 

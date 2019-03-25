@@ -89,28 +89,35 @@ def getInstr(data):
     tailleInstr=len(instrList)*4
 
     # la convertie en une chaine de 0 et 1
-    instrBin = bin(int(instrHex,16))[2:]
+    instrBin = (bin(int(instrHex,16))[2:]).zfill(tailleInstr)
     return instrBin, tailleInstr
 
-def writeInELF(file, faultsMatrix, indexWrite, instrTaille, dataTemplate, endianess):
+def writeInELF(file, faultsMatrix, indexWrite, instrTaille, dataTemplate, endianess, arch):
     file.write(dataTemplate[:indexWrite - 1])
     for fault in faultsMatrix:
-        convertFault(fault,instrTaille,file,endianess)
+        convertFault(fault,instrTaille,file,endianess, arch)
         indexWrite += instrTaille//8
     file.write(dataTemplate[indexWrite-1:])
     return indexWrite
 
-def convertFault(fault, instrTaille,file,endianess):
+def convertFault(fault, instrTaille,file,endianess, arch):
     faulthexa= f"{int(fault,2):#0{instrTaille//4+2}x}"[2:]
     if endianess=='le':
         if instrTaille == 16:
+
             file.write(bytes.fromhex(faulthexa[2:4]))
             file.write(bytes.fromhex(faulthexa[:2]))
         else:
-            file.write(bytes.fromhex(faulthexa[2:4]))
-            file.write(bytes.fromhex(faulthexa[:2]))
-            file.write(bytes.fromhex(faulthexa[6:8]))
-            file.write(bytes.fromhex(faulthexa[4:6]))
+            if arch.startswith("risc"):
+                file.write(bytes.fromhex(faulthexa[6:8]))
+                file.write(bytes.fromhex(faulthexa[4:6]))
+                file.write(bytes.fromhex(faulthexa[2:4]))
+                file.write(bytes.fromhex(faulthexa[:2]))
+            else:
+                file.write(bytes.fromhex(faulthexa[2:4]))
+                file.write(bytes.fromhex(faulthexa[:2]))
+                file.write(bytes.fromhex(faulthexa[6:8]))
+                file.write(bytes.fromhex(faulthexa[4:6]))
     else:
         file.write(bytes.fromhex(faulthexa))
 
@@ -128,17 +135,21 @@ def main():
     #On onvre le template correspondant à l'architecture choisie
     if arch.startswith("arm"):
         fileTemplate = open("templates/templateARM", "rb")
+        indexWrite = 59
     elif arch.startswith("avr"):
         fileTemplate = open("templates/templateAVR", "rb")
+        indexWrite = 59
     elif arch.startswith("mips"):
         fileTemplate = open("templates/templateMIPS", "rb")
-    elif arch.startswith("ris"):
+        indexWrite = 65
+    elif arch.startswith("risc"):
         fileTemplate = open("templates/templateRISC", "rb")
+        indexWrite = 71
 
     dataTemplate = fileTemplate.read()
     fileTemplate.close()
     fileWrite = open("toObjdump.elf", "wb")
-    indexWrite = 59
+
 
     # Fichier comportant l'instruction
     fileRead = open("instruction.txt", "r")
@@ -147,7 +158,7 @@ def main():
     instrSTR ,tailleInstr = getInstr(data)
 
     faults = generateFaults(instrSTR, nbBit, faultType, tailleInstr)
-    index = writeInELF(fileWrite, faults, indexWrite, tailleInstr, dataTemplate, endianess)
+    index = writeInELF(fileWrite, faults, indexWrite, tailleInstr, dataTemplate, endianess, arch)
     if faults[-1].startswith('1111') and tailleInstr == 16:
         print(hex(index-51))
     else:
