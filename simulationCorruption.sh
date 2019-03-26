@@ -131,7 +131,10 @@ do
     0x*)
         index=$retPy;;
     16to32:*)
-        echo "Une faute entraine un passage de 16 à 32 bits : ${retPy:7}";;
+        echo "Une faute entraine un passage de 16 à 32 bits : ${retPy:7}XXXX";;
+
+    32to16:*)
+        echo "Une faute entraine un passage de 32 à 16 bits : ${retPy:7:6} et ${retPy:13} ";;
     *);;
     esac
 done
