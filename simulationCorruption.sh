@@ -70,6 +70,9 @@ timestamp(){
 }
 
 
+####################################################################################################
+##################                    PREMIERE PARTIE                             ##################
+####################################################################################################
 
 echo
 
@@ -127,7 +130,12 @@ index=$(python3 createFault.py $nbFaultBits $faultType $endianess $instructionSe
 mkdir -p log
 ${instructionSet}objdump --start-address=6 --stop-address=$index -d toObjdump.elf | tee -a log/$timeS.log
 
-#test ajout modification
+
+####################################################################################################
+##################                    DEUXIEME PARTIE                             ##################
+####################################################################################################
+
+
 #La simulation de l'instruction corrompue ne fonctionne qu'avec ARM pour le moment
 read -p "Voulez-vous corrompre l'instruction (oui/non) : "  corrupt
 case $corrupt in
