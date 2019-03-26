@@ -123,9 +123,25 @@ timeS=$(timestamp)
 echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.log
 cat instruction.txt | tee -a log/$timeS.log
 #On récupere l'index de la derniere instruction fautée
-index=$(python3 createFault.py $nbFaultBits $faultType $endianess $instructionSet)
-#On affiche les instructions fautée
+ret=$(python3 createFault.py $nbFaultBits $faultType $endianess $instructionSet)
 
+
+set -- $ret
+
+for retPy in "$@"
+do
+    case $retPy in
+    0x*)
+        index=$retPy;;
+    16to32:*)
+        echo "Une faute entraine un passage de 16 à 32 bits : ${retPy:7}XXXX";;
+
+    32to16:*)
+        echo "Une faute entraine un passage de 32 à 16 bits : ${retPy:7:6} et ${retPy:13} ";;
+    *);;
+    esac
+done
+#On affiche les instructions fautée
 
 mkdir -p log
 ${instructionSet}objdump --start-address=6 --stop-address=$index -d toObjdump.elf | tee -a log/$timeS.log

@@ -63,21 +63,29 @@ def generateFaults(instrSTR, nbBit, faultType, tailleInstr, indice = -1):
         for mask in masksList:
             # On genere une faute par masque qu'on ajoute si elle différe de l'instruction de départ ou des fautes déjà existante
             fault = int2string(orLoop(instrInt,mask))
-            if fault not in faultsMatrix:
-                faultsMatrix.append(fault)
+            faultsMatrix = sizeChange(faultsMatrix, fault, tailleInstr)
     elif faultType == 'r':
         for mask in masksList:
             fault = int2string(andNotLoop(instrInt, mask))
-            if fault not in faultsMatrix:
-                faultsMatrix.append(fault)
+            faultsMatrix = sizeChange(faultsMatrix,fault, tailleInstr)
     elif faultType == 'f':
         for mask in masksList:
             fault = int2string(xorLoop(instrInt, mask))
-            if fault not in faultsMatrix:
-                faultsMatrix.append(fault)
+            faultsMatrix = sizeChange(faultsMatrix,fault, tailleInstr)
 #   On renvoie les fautes générées sans l'instruction de départ
     return faultsMatrix[1:]
 
+def sizeChange(faultsMatrix,fault, tailleInstr):
+    if fault not in faultsMatrix:
+        # Gestion du changement de taille de l'instruction ARM
+        # Une instruction 16 bits ne commence jamais par 111XX sauf 11100
+        if (tailleInstr == 16 and (fault[0:3] == "111" and fault[0:5]!='11100')):
+            print("16to32:" + hex(int(fault, 2)))
+        elif (tailleInstr == 32 and (fault[0:3] != "111" or fault[0:5]=='11100')):
+            print("32to16:" + hex(int(fault[0:16], 2)) + hex(int(fault[16:32], 2)))
+        else:
+            faultsMatrix.append(fault)
+    return faultsMatrix
 
 def getInstr(data):
     # recupere l'instruction hexadeciaml
