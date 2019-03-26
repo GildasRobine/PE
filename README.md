@@ -25,6 +25,7 @@ sudo apt-get install python3.6
 ```
 Installation des Toolchains :
 * ARM : https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+	* Une fois la toolchain installée, la rajouter au PATH : export PATH=$PATH:{install_dir}/gcc-arm-none-eabi-8-2018-q4-major-linux/bin
 * AVR : 
 ```
 sudo apt-get install gcc-avr binutils-avr avr-libc
@@ -32,6 +33,7 @@ sudo apt-get install gdb-avr
 ```
 * MIPS (binutils-2.30, gcc-7.3.0, gdb-8.1): https://www.linux-mips.org/wiki/Toolchains
 * RISC V : https://github.com/riscv/riscv-gnu-toolchain
+	* Attention installation très longue
 
 Installation de st-util : https://github.com/texane/stlink
 
