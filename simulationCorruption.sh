@@ -184,7 +184,7 @@ case $corrupt in
 	cd ..
 	#arm-none-eabi-objdump -d blink32/build/blink32.elf
 	echo -e "\nPour effectuer la corruption, entrer les commandes jump *$jumpFault, jump *$jumpInit\n\n"
-	arm-none-eabi-gdb -q blink32/build/blink32.elf -ex="target remote :4242" -ex="load" -ex="break *$breakInit" -ex="break *$breakFault" 
+	arm-none-eabi-gdb -q blink32/build/blink32.elf -ex="target remote :4242" -ex="load" -ex="break *$breakInit" -ex="break *$breakFault" -ex="continue" -ex="continue"
 	
 	echo "Réinitialisation des fichiers"
 	#Remplace le fichier avec l'instruction corrompue par le fichier de base

@@ -51,6 +51,7 @@
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 void fonction_inutile(void);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -94,12 +95,18 @@ fonction_inutile();
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
+        if(HAL_GPIO_ReadPin(BP1_GPIO_Port,BP1_Pin)){
+            HAL_GPIO_WritePin(GPIOC, LD3_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOC, LD4_Pin, GPIO_PIN_SET);
+         }
+        else{
+            HAL_GPIO_WritePin(GPIOC, LD3_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOC, LD4_Pin, GPIO_PIN_RESET);
+        }
 
-
-		HAL_GPIO_WritePin(GPIOC, LD3_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(GPIOC, LD4_Pin, GPIO_PIN_SET);
 
     /* USER CODE END WHILE */
 
@@ -107,6 +114,7 @@ fonction_inutile();
   }
   /* USER CODE END 3 */
 }
+
 
 void fonction_inutile(void)
 {
