@@ -50,7 +50,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-void fonction_inutile(void);
+void mem_reserved_corrupt(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -89,7 +89,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-fonction_inutile();
+mem_reserved_corrupt();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,8 +108,9 @@ fonction_inutile();
   /* USER CODE END 3 */
 }
 
-void fonction_inutile(void)
+void mem_reserved_corrupt(void)
 {
+//nop à remplacer :
 asm("nop;");
 }
 

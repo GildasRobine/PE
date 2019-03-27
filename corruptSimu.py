@@ -19,7 +19,7 @@ def main():
     # On stock le main dans un buffer et on vient ajouter l'instruction fautée dans le fichier
     cFileRead = open("blink32/Src/main.c", "r")
     datacFile = cFileRead.read()
-    detectLine = "asm(\"nop;\");\n"
+    detectLine = "//nop à remplacer :\nasm(\"nop;\");\n"
 
     cFileBuffer = open("blink32/Src/buffer.c", "w")
     cFileBuffer.write(datacFile)

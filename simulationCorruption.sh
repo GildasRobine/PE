@@ -92,15 +92,15 @@ while :; do
 done
 #On demande à l'utilisateur d'indiquer le nombre de bits à fauter
 while :; do
-  read -p "Combien de bits voulez-vous fauter (entre 1 et 16) : " nbFaultBits
+  read -p "Combien de bits voulez-vous fauter (entre 1 et 32) : " nbFaultBits
 	#On vérifie que le nombre indiqué est bien un entier positif
   [[ $nbFaultBits =~ ^[0-9]+$ ]] || { echo "Entrer un nombre valide"; continue; }
   #On vérifie que le nombre indiqué est entre 1 et 16
-  if ((nbFaultBits > 0 && nbFaultBits <= 16)); then
+  if ((nbFaultBits > 0 && nbFaultBits <= 32)); then
 		#Lorsqu'une entrée est valide, on sort de la boucle infinie
     break
   else
-    echo "le nombre n'est pas entre 1 et 16"
+    echo "le nombre n'est pas entre 1 et 32"
   fi
 done
 
@@ -167,7 +167,7 @@ case $corrupt in
 			echo "Rentrez une adresse d'instruction valide" 
 		fi
 	done
-	arm-none-eabi-objdump -d blink32/build/blink32.elf | egrep "fonction_inutile" >> addrFct.txt
+	arm-none-eabi-objdump -d blink32/build/blink32.elf | egrep "mem_reserved_corrupt" >> addrFct.txt
 	
 	#Script python qui crée un main avec l'instruction corrompue dans une zone mémoire
 	breakpoint=$(python3 corruptSimu.py)

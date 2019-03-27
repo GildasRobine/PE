@@ -4,3 +4,7 @@ log/
 \.idea/
 
 toObjdump\.elf
+
+__pycache__/
+
+blink32/build/
