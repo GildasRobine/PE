@@ -1,8 +1,5 @@
 import sys
-import forARM
-import forAVR
-import forRISC
-import forMIPS
+from forARCH import forRISC, forARM, forAVR, forMIPS
 
 # On recupère les arguments envoyés depuis le shell
 dataIn = sys.argv
