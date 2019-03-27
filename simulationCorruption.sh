@@ -1,5 +1,17 @@
 #!/bin/bash
 
+####################################################################################################
+##################                      START USER                                ##################
+####################################################################################################
+
+
+nomDossier=blink32
+nomFichierCompile=blink32
+
+####################################################################################################
+##################                       END USER                                 ##################
+####################################################################################################
+
 
 echo "Consequence d'une modification de bits sur une instruction"
 echo "Utilisation : scriptShell.sh <fichier .elf>"
@@ -165,7 +177,7 @@ case $corrupt in
 			echo "Rentrez une adresse d'instruction valide" 
 		fi
 	done
-	arm-none-eabi-objdump -d blink32/build/blink32.elf | egrep "mem_reserved_corrupt" >> addrFct.txt
+	arm-none-eabi-objdump -d "$nomDossier"/build/"$nomFichierCompile".elf | egrep "mem_reserved_corrupt" >> addrFct.txt
 	
 	#Script python qui crée un main avec l'instruction corrompue dans une zone mémoire
 	breakpoint=$(python3 corruptSimu.py)
@@ -177,20 +189,21 @@ case $corrupt in
 	jumpInit=$(printf "0x%X\n" $(($1+0x2)))
 	jumpFault=$2
 	#On compile avec un main.c contenant l'instruction corrompue
-	cd blink32/
+	cd ${nomDossier}
 	make &> /dev/null 
 	cd ..
 	echo -e "\nPour effectuer la corruption, entrer les commandes jump *$jumpFault, jump *$jumpInit\n\n"
-	arm-none-eabi-gdb -q blink32/build/blink32.elf -ex="target remote :4242" -ex="load" -ex="break *$breakInit" -ex="break *$breakFault" 
-	
+
+	pathgdb=
+	arm-none-eabi-gdb -q "$nomDossier"/build/"$nomFichierCompile".elf -ex="target remote :4242" -ex="load" -ex="break *$breakInit" -ex="break *$breakFault"
 	echo "Réinitialisation des fichiers"
 	#Remplace le fichier avec l'instruction corrompue par le fichier de base
-	rm blink32/Src/main.c
-	mv blink32/Src/buffer.c blink32/Src/main.c
-	cd blink32/
+	rm "$nomDossier"/Src/main.c
+	mv "$nomDossier"/Src/buffer.c "$nomDossier"/Src/main.c
+	cd "$nomDossier"/
 	#Recompile avec le fichier de base
-	make clean  &> /dev/null 
-	make  &> /dev/null 
+	make clean  &> /dev/null
+	make  &> /dev/null
 	cd ..
 	;;
 	n*);;

@@ -48,7 +48,7 @@ jeu_instruction : arm, avr, mips, risc
 fichier : fichier .elf après compilation du programme
 Exemple : 
  ```
- ./scriptShell.sh -arch=arm -f=test.elf
+ ./scriptShell.sh -arch=arm -f=project/build/test.elf
   ```
 
 ### Recherche des fautes possibles
@@ -94,7 +94,7 @@ Une fois que le programme a affiché les corruptions possibles, l'utilisateur pe
 Voulez-vous corrompre l'instruction (oui/non) : oui
 Par quelle instruction remplacer l'instruction : 6
 ```
-Une fois la corruption selectionée, va placer cette instruction dans une partie réservé de la mémoire. Pour ce faire,
+Une fois la corruption sélectionée, va placer cette instruction dans une partie réservée de la mémoire. Pour ce faire,
 il faut que votre projet contienne la fonction suivante dans le main.c :
 ```
 void mem_reserved_corrupt(void)
@@ -103,10 +103,10 @@ void mem_reserved_corrupt(void)
 asm("nop;");
 }
 ```
-Avec certain compilateur, il faudra appeler au moins une fois la fonction dans votre main. En effet, lorsque la fonction
-n'est jamais appelé, certains compilateur supprime l'instruction et cela risque de décaler les autres instructions.
+Avec certains compilateurs, il faudra appeler au moins une fois la fonction dans votre main. En effet, lorsque la fonction
+n'est jamais appelée, certains compilateurs suppriment l'instruction et cela risque de décaler les autres instructions.
 
-Une fois la corruption choisie, le programme insere l'instruction dans le programme et le recompile.
+Une fois la corruption choisie, le programme insère l'instruction dans le programme et le recompile.
 ```
 void mem_reserved_corrupt(void)
 {
@@ -115,7 +115,7 @@ asm(" add r0, r0;");
 ```
 
 Une fois le projet compiler avec l'instruction corrompue, le programme lance GDB, se connecte au port 4242 (que vous avez 
-connecter à la carte via st-util), charge le programme et initialise des points d'arrêt sur
+connecté à la carte via st-util), charge le programme et initialise des points d'arrêt sur
 l'instruction à corrompre et après l'instruction corrompue.
 ```
 Reading symbols from blink32/build/blink32.elf...
@@ -134,7 +134,7 @@ Breakpoint 1 at 0x8000d42
 Breakpoint 2 at 0x800029e: file Src/main.c, line 113.
 (gdb) 
 ``` 
-En plus de cela, le programmee renvoie l'adresse de l'instruction corrompue et celle de l'instruction suivant l'instruction 
+En plus de cela, le programme renvoie l'adresse de l'instruction corrompue et celle de l'instruction suivant l'instruction 
 à corrompre :
 ``` 
 Pour effectuer la corruption, entrer les commandes jump *0x800029c, jump *0x8000D44
@@ -164,11 +164,21 @@ Breakpoint 1, 0x080002f8 in main () at Src/main.c:101
 (gdb) 
 
 ```
-Sur cet, nous avons effectué la première itération de notre boucle avec l'instruction de base, puis nous avons
+Sur cet exemple, nous avons effectué la première itération de notre boucle avec l'instruction de base, puis nous avons
 utilisé l'instruction corrompue dans la seconde itération.
 
 Une fois que vous avez fini avec le débogueur, quittez le simplement avec la commande "quit". Le programme se réinitialisera.
 
+### Comment utiliser un projet personnel
+
+Le simulateur est fourni avec un projet test "blink32". Afin d'utiliser le simulateur avec votre propre projet, il faut respecter ces quelques règles :
+* Mettre son dossier projet dans le dossier "simulateurInjection" (avec le script bash et les scipts python)
+* Votre dossier project dois être consitué : 
+    * d'un dossier "Src" avec le main.c
+    * d'un dossier "build" où on retrouve le fichier compilé .elf
+    * d'un makefile à la racine de votre projet
+    * Un exemple est donnée avec le programme (blink32)
+* Dans simulationCorruption.sh modifier les variables "nomDossier" et "nomFichierCompile"
 
 ## Problèmes connus
 
