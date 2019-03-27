@@ -21,28 +21,22 @@ do
 	#Si le paramètre commence par -arch, on vient choisir le jeu d'instruction
 	-arch*)
 		archOK=true
+	# Début ajout jeux instructions
 		case $param in
 		*arm)
-		instructionSet=arm-none-eabi-
-		endianess=le
-		 ;;
+		instructionSet=arm-none-eabi-;;
 		*avr)
-		instructionSet=avr-
-		endianess=be
-		;;
+		instructionSet=avr-;;
 		*mips)
-		instructionSet=mipsel-unknown-linux-gnu-
-		endianess=le;;
+		instructionSet=mipsel-unknown-linux-gnu-;;
 		*risc)
-		 instructionSet=riscv64-unknown-linux-gnu-
-		 endianess=le;;
-	# Début ajout jeux instructions
-
+		 instructionSet=riscv64-unknown-linux-gnu-;;
 	# Fin ajout jeux instructions
 		*) instructionSet=arm-none-eabi-;; #jeu d'instruction arm par défaut
 		esac;;
 	#Si le paramètre commence par -f, on vient choisir le fichier contenant les instructions
 	-f*) 	nomFichier=${param:3}
+	#On verfie l'existence du fichier
 		if [ -f $nomFichier ]
 		then
 			fichierOK=true
@@ -80,8 +74,9 @@ while :; do
  
 	#On demande à l'utilisateur d'indiquer l'adresse de l'instruction à fauter
 	read -p "Veuillez séléctionner l'adresse de l'instruction à fauter : " add_inst
-	#On stocke la ligne correspondant à l'instruction que l'on veut fauter
+	#On stocke la ligne correspondant à l'instruction que l'on veut fauter dans un fichier texte lu par python
 	${instructionSet}objdump -d $nomFichier | egrep -w $add_inst: >> instruction.txt
+	# On verifie que le fichier existe et est non vide
 	if [ -s "instruction.txt" ]
 	then
 		
@@ -92,10 +87,10 @@ while :; do
 done
 #On demande à l'utilisateur d'indiquer le nombre de bits à fauter
 while :; do
-  read -p "Combien de bits voulez-vous fauter (entre 1 et 32) : " nbFaultBits
+  read -p "Combien de bits voulez-vous fauter : " nbFaultBits
 	#On vérifie que le nombre indiqué est bien un entier positif
   [[ $nbFaultBits =~ ^[0-9]+$ ]] || { echo "Entrer un nombre valide"; continue; }
-  #On vérifie que le nombre indiqué est entre 1 et 16
+  #On vérifie que le nombre indiqué est entre 1 et 32
   if ((nbFaultBits > 0 && nbFaultBits <= 32)); then
 		#Lorsqu'une entrée est valide, on sort de la boucle infinie
     break
@@ -118,12 +113,13 @@ while :; do
   fi
 done
 
-
+# On recupère la date et l'heure pour nommer le fichier de log
 timeS=$(timestamp)
+# On créer le fichier de log et on remplie l'en-tête
 echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.log
 cat instruction.txt | tee -a log/$timeS.log
 #On récupere l'index de la derniere instruction fautée
-ret=$(python3 createFault.py $nbFaultBits $faultType $endianess $instructionSet)
+ret=$(python3 createFault.py $nbFaultBits $faultType $instructionSet)
 
 
 set -- $ret
@@ -141,7 +137,7 @@ do
     *);;
     esac
 done
-#On affiche les instructions fautée
+#On affiche les instructions fautées et on les stocks dans le fichier de log créer plus haut
 
 mkdir -p log
 ${instructionSet}objdump --start-address=6 --stop-address=$index -d toObjdump.elf | tee -a log/$timeS.log
@@ -152,11 +148,13 @@ ${instructionSet}objdump --start-address=6 --stop-address=$index -d toObjdump.el
 ####################################################################################################
 
 
-#La simulation de l'instruction corrompue ne fonctionne qu'avec ARM pour le moment
+#  /!\ La simulation de l'instruction corrompue ne fonctionne qu'avec ARM pour le moment /!\
+echo "La simulation ne fonctionne qu'avec l'architecture ARM pour le moment"
 read -p "Voulez-vous corrompre l'instruction (oui/non) : "  corrupt
 case $corrupt in
 	o*)
 	while :; do
+	    # On demande à l'utilisateur l'adresse de la faute qu'il souhaite simuler
 		read -p "Par quelle instruction remplacer l'instruction : " ligneInstr
 		${instructionSet}objdump --start-address=6 --stop-address=$index -d toObjdump.elf | egrep -w $ligneInstr: >> instructionModif.txt
 		if [ -s "instructionModif.txt" ]
@@ -182,7 +180,6 @@ case $corrupt in
 	cd blink32/
 	make &> /dev/null 
 	cd ..
-	#arm-none-eabi-objdump -d blink32/build/blink32.elf
 	echo -e "\nPour effectuer la corruption, entrer les commandes jump *$jumpFault, jump *$jumpInit\n\n"
 	arm-none-eabi-gdb -q blink32/build/blink32.elf -ex="target remote :4242" -ex="load" -ex="break *$breakInit" -ex="break *$breakFault" 
 	
@@ -201,7 +198,7 @@ case $corrupt in
 esac
 
 
-#rm instruction.txt 2> /dev/null
+rm instruction.txt 2> /dev/null
 rm instructionModif.txt 2> /dev/null 
 rm addrFct.txt 2> /dev/null 
 
