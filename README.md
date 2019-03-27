@@ -41,17 +41,17 @@ Installation de st-util : https://github.com/texane/stlink
 
 ```
 cd simulateurInjection
-./scriptShell.sh <jeu_instruction> <fichier>
+./simulationCorruption.sh -arch=<jeu_instruction> -f=<fichier>
 ```
 jeu_instruction : arm, avr, mips, risc
 
-fichier : fichier .elf après compilation du programme
+fichier : fichier .elf compilé pour la même architecture que celle donnée en paramètre -arch
 
 ### Recherche des fautes possibles
 
 Une fois le programme lancer, il va falloir choisir l'instruction à fauter et les caractéristiques de la faute :
 * Choix de l'adresse de la faute en hexa (ex: 12c)
-* Nombre de bits à fauter (entre 1 et 32)
+* Nombre de bits à fauter (entre 1 et 32, les fautes multibits étant en bits contigüs)
 * Type de faute à simuler (Bitset (s) - Bitreset (r) - Bitflip (f))
 
 Le programme affiche alors les potentielles corruptions de l'instruction avec le modèle de fautes indiqué (opcode en hexa + correspondance assembleur).

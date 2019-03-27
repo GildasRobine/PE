@@ -18,6 +18,8 @@ def convertFault(fault, instrTaille,file):
         file.write(bytes.fromhex(faulthexa[6:8]))
         file.write(bytes.fromhex(faulthexa[4:6]))
 
+
+
 def genFault(faults,tailleInstr):
 
     fileTemplate = open("templates/templateARM", "rb")

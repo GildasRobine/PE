@@ -1,8 +1,8 @@
 import sys
-import forARM
-import forAVR
-import forRISC
-import forMIPS
+
+import Instruction
+from Instruction_ARCH import InstructionARM, InstructionAVR, InstructionMIPS, InstructionRISC
+
 
 # On recupère les arguments depuis le shell
 dataIn = sys.argv
@@ -23,75 +23,9 @@ def int2string(instrInt):
 
     return "".join(instrSTRList)
 
-# Céer un masque de faute de taille nbBit pour une instruction de taille tailleInstr.
-# Si on donne un indice de faute, il ne donne que le masque correspondant
-# Sinon il génère tous les masques possibles
-def maskGenerator(nbBit, tailleInstr, indice=-1):
-    masksList=[]
-    if indice == -1:
-        for i in range(tailleInstr,-1+nbBit,-1):
-            mask = tailleInstr*[0]
-            mask[i-nbBit:i] = nbBit*[1]
-            masksList.append(mask)
-    else:
-        mask = tailleInstr * [0]
-        mask[indice-nbBit:indice] = nbBit*[1]
-        masksList.append(mask)
-    return masksList
-
-# Pour faire un bit flip.
-def xorLoop(instrInt, mask):
-
-    return list(map(lambda x,y: x ^ y, instrInt, mask))
 
 
-# Pour faire un bit set
-def orLoop(instrInt, mask):
 
-    return list(map(lambda x,y: x | y, instrInt, mask))
-
-
-# Pour faire un bit reset
-def andNotLoop(instrInt, mask):
-
-    return list(map(lambda x,y: x & (not y) , instrInt, mask))
-
-
-def generateFaults(instrSTR, nbBit, faultType, tailleInstr, indice = -1):
-    faultsMatrix=[instrSTR]
-    # On genère les masques
-    masksList = maskGenerator(nbBit,tailleInstr,indice)
-    instrInt = string2int(instrSTR)
-
-    # Selon le type de faute on utilise une des 4 fonctions définies
-    if faultType == 's':
-        for mask in masksList:
-            # On genere une faute par masque qu'on ajoute si elle différe de l'instruction de départ ou des fautes déjà existante
-            fault = int2string(orLoop(instrInt,mask))
-            faultsMatrix = sizeChange(faultsMatrix, fault, tailleInstr)
-    elif faultType == 'r':
-        for mask in masksList:
-            fault = int2string(andNotLoop(instrInt, mask))
-            faultsMatrix = sizeChange(faultsMatrix,fault, tailleInstr)
-    elif faultType == 'f':
-        for mask in masksList:
-            fault = int2string(xorLoop(instrInt, mask))
-            faultsMatrix = sizeChange(faultsMatrix,fault, tailleInstr)
-#   On renvoie les fautes générées sans l'instruction de départ
-    return faultsMatrix[1:]
-
-
-def sizeChange(faultsMatrix,fault, tailleInstr):
-    if fault not in faultsMatrix:
-        # Gestion du changement de taille de l'instruction ARM
-        # Une instruction 16 bits ne commence jamais par 111XX sauf 11100
-        if (tailleInstr == 16 and (fault[0:3] == "111" and fault[0:5]!='11100')):
-            print("16to32:" + hex(int(fault, 2)))
-        elif (tailleInstr == 32 and (fault[0:3] != "111" or fault[0:5]=='11100')):
-            print("32to16:" + hex(int(fault[0:16], 2)) + hex(int(fault[16:32], 2)))
-        else:
-            faultsMatrix.append(fault)
-    return faultsMatrix
 
 
 
@@ -125,23 +59,30 @@ def main():
     # Instruction
     data = fileRead.read()
     instrSTR ,tailleInstr = getInstr(data)
-    #Generation des fautes
-    faults = generateFaults(instrSTR, nbBit, faultType, tailleInstr)
+    faultsMatrix=[instrSTR]
+    instrInt = string2int(instrSTR)
+
+
 
     #On onvre le template correspondant à l'architecture choisie
     if arch.startswith("arm"):
-        index = forARM.genFault(faults, tailleInstr)
+        instr_obj = InstructionARM(instrSTR, tailleInstr)
     elif arch.startswith("avr"):
-        index = forAVR.genFault(faults, tailleInstr)
+        instr_obj = InstructionARM(instrSTR, tailleInstr)
     elif arch.startswith("mips"):
-        index = forMIPS.genFault(faults, tailleInstr)
+        instr_obj = InstructionARM(instrSTR, tailleInstr)
     elif arch.startswith("risc"):
-        index = forRISC.genFault(faults, tailleInstr)
-
-
-    if faults[-1].startswith('1111') and tailleInstr == 16:
-        print(hex(index-51))
+        instr_obj = InstructionARM(instrSTR, tailleInstr)
     else:
-        print(hex(index - 53))
+        sys.exit("Architecture non reconnue")
+
+    instr_obj.generateFaults(nbBit,)
+
+
+
+    if instr_obj.faultMatrix[-1].startswith('1111') and tailleInstr == 16:
+        print(hex(instr_obj.index - 51))
+    else:
+        print(hex(instr_obj.index - 53))
 
 main()
