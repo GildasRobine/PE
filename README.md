@@ -179,6 +179,7 @@ Le simulateur est fourni avec un projet test "blink32". Afin d'utiliser le simul
     * d'un makefile à la racine de votre projet
     * Un exemple est donnée avec le programme (blink32)
 * Dans simulationCorruption.sh modifier les variables "nomDossier" et "nomFichierCompile"
+* Ajouter la fonction "mem_reserved_corrupt" dans votre main.c
 
 ## Problèmes connus
 
@@ -198,7 +199,7 @@ il faut se placer dans le dossier de gcc et effectuer cette commande : ./contrib
 ## Encadrants
 
 * Jean-Max Dutertre
-* Pierre-Alain Moellic
+* Pierre-Alain Moëllic
 * Olivier Potin
 
 
