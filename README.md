@@ -54,6 +54,7 @@ Exemple :
 ### Recherche des fautes possibles
 Lors du lancement du programme, celui-ci affiche les instructions du fichier .elf :
 ```
+ Adresse    Instruction Hexa     Instruction Assembleur
  ...
  80002f6:	4c07      	ldr	r4, [pc, #28]	; (8000314 <main+0x30>)
  80002f8:	2201      	movs	r2, #1

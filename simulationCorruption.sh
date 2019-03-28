@@ -125,13 +125,32 @@ while :; do
   fi
 done
 
+#On demande à l'utilisateur s'il veut toutes les fautes possibles ou seulement une
+read -p "Voulez-vous voir toutes les fautes possibles ? (oui/non) : " allFault
+#On vérifie que l'entrée correspond à une des attaques proposées
+if [ "non" == "$allFault" ]
+then
+    while :; do
+        read -p "Index du bit (0 = gauche) : " indiceFault
+        if ((indiceFault >= 0 && indiceFault <= 32)); then
+		#Lorsqu'une entrée est valide, on sort de la boucle infinie
+        break
+      else
+        echo "le nombre n'est pas entre 1 et 32"
+      fi
+    done
+else
+    indiceFault=-1
+fi
+
+
 # On recupère la date et l'heure pour nommer le fichier de log
 timeS=$(timestamp)
 # On créer le fichier de log et on remplie l'en-tête
 echo "Simulation d'une attaque de type $faultType sur $nbFaultBits bits sur l'instruction : " | tee log/$timeS.log
 cat instruction.txt | tee -a log/$timeS.log
 #On récupere l'index de la derniere instruction fautée
-ret=$(python3 createFault.py $nbFaultBits $faultType $instructionSet)
+ret=$(python3 createFault.py $nbFaultBits $faultType $instructionSet $indiceFault)
 
 
 set -- $ret
@@ -161,6 +180,8 @@ ${instructionSet}objdump --start-address=6 --stop-address=$index -d toObjdump.el
 
 
 #  /!\ La simulation de l'instruction corrompue ne fonctionne qu'avec ARM pour le moment /!\
+
+#  /!\ La simulation se fait toujours sur le projet blink32 peut importe l'entrée choisie par l'utilisateur /!\
 echo "La simulation ne fonctionne qu'avec l'architecture ARM pour le moment"
 read -p "Voulez-vous corrompre l'instruction (oui/non) : "  corrupt
 case $corrupt in

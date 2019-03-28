@@ -32,7 +32,10 @@ def maskGenerator(nbBit, tailleInstr, indice=-1):
             masksList.append(mask)
     else:
         mask = tailleInstr * [0]
-        mask[indice-nbBit:indice] = nbBit*[1]
+        if (nbBit+indice<tailleInstr):
+            mask[indice:indice+nbBit] = nbBit*[1]
+        else:
+            mask[indice:] = (tailleInstr-indice)*[1]
         masksList.append(mask)
     return masksList
 
@@ -122,13 +125,15 @@ def main():
     #Architecture
     arch =dataIn[3]
 
+    indiceFault = int(dataIn[4])
+
     # Fichier comportant l'instruction
     fileRead = open("instruction.txt", "r")
     # Instruction et sa taille
     data = fileRead.read()
     instrSTR ,tailleInstr = getInstr(data)
     #Generation des fautes
-    faults = generateFaults(instrSTR, nbBit, faultType, tailleInstr, arch)
+    faults = generateFaults(instrSTR, nbBit, faultType, tailleInstr, arch, indiceFault)
 
     # On genère les fautes avec ouverture des templates et récupération de l'index en fonction de l'architecture
     # Si l'architecture donnée n'est pas reconnue le système sort avec une erreur
