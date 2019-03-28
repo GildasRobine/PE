@@ -126,6 +126,9 @@ while :; do
 done
 
 #On demande à l'utilisateur s'il veut toutes les fautes possibles ou seulement une
+
+#  /!\ Cette fonctionnalité n'est pas encore au point, il vaut mieux afficher toutes les fautes /!\
+
 read -p "Voulez-vous voir toutes les fautes possibles ? (oui/non) : " allFault
 #On vérifie que l'entrée correspond à une des attaques proposées
 if [ "non" == "$allFault" ]

@@ -32,8 +32,10 @@ def maskGenerator(nbBit, tailleInstr, indice=-1):
             masksList.append(mask)
     else:
         mask = tailleInstr * [0]
+        #Vérification que le nombre de bit a fauter n'est pas trop élevé par rapport à l'index demandé
         if (nbBit+indice<tailleInstr):
             mask[indice:indice+nbBit] = nbBit*[1]
+        #Si c'est le cas, on faute seulement les derniers bits et on ne prend pas en compte le nombre de bits à fauter
         else:
             mask[indice:] = (tailleInstr-indice)*[1]
         masksList.append(mask)
