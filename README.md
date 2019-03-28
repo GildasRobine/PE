@@ -85,7 +85,12 @@ Le programme affiche alors les potentielles corruptions de l'instruction avec le
 ### Simulateur
 
 Le simulateur ne fonctionne que pour la toolchain ARM et l'utilitaire st-util pour le moment. Pour que la simulation 
-puisse fonctionner, il faut lancer st-util dans un autre terminal.
+puisse fonctionner, il faut lancer st-util dans un autre terminal : 
+```
+st-util -m
+```
+L'ajout de l'option -m permet de ne pas avoir à relancer st-util à chaque fois qu'on quitte la simulation.
+
 
 Une fois que le programme a affiché les corruptions possibles, l'utilisateur peut choisir de simuler une de ces
  possibilités en entrant l'adresse de la corruption (6, 8 ou a dans l'exemple précédent).
